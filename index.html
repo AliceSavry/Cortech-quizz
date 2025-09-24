@@ -3,48 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Cor-Tech - Version Finale</title>
+    <title>Quiz Cor-Tech - Version Finale (Calibrée)</title>
     <style>
         /* --- Import de la police --- */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
 
         /* --- Variables de couleurs --- */
         :root {
-            --primary-color: #2c3e50;
-            --background-color: #ecf0f1;
-            --light-color: #ffffff;
-            --correct-color: #2ecc71;
-            --incorrect-color: #e74c3c;
-            --waiting-color: #f39c12;
-            --validated-color: #2ecc71;
-            
-            --buzz-blue: #007bff;
-            --buzz-orange: #fd7e14;
-            --buzz-green: #28a745;
-            --buzz-yellow: #ffc107;
+            --primary-color: #2c3e50; --background-color: #ecf0f1; --light-color: #ffffff;
+            --correct-color: #2ecc71; --incorrect-color: #e74c3c; --waiting-color: #f39c12;
+            --validated-color: #2ecc71; --buzz-blue: #007bff; --buzz-orange: #fd7e14;
+            --buzz-green: #28a745; --buzz-yellow: #ffc107;
         }
 
         /* --- Styles Généraux --- */
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--background-color);
-            color: var(--primary-color);
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            font-family: 'Poppins', sans-serif; background-color: var(--background-color); color: var(--primary-color);
+            margin: 0; padding: 20px; text-align: center; display: flex;
+            justify-content: center; align-items: center; min-height: 100vh;
         }
 
         .container {
-            width: 90%;
-            max-width: 900px;
-            background: var(--light-color);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px B20px rgba(0,0,0,0.1);
+            width: 90%; max-width: 900px; background: var(--light-color); padding: 30px;
+            border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
         
         h1, h2, h3 { color: var(--primary-color); }
@@ -52,138 +33,54 @@
 
         /* --- Gestion des écrans & Animations --- */
         #setup-screen, #game-screen, #end-screen { display: none; }
-        #setup-screen.active, #game-screen.active, #end-screen.active {
-            display: block;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
+        #setup-screen.active, #game-screen.active, #end-screen.active { display: block; animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
         /* --- Écran de Configuration --- */
-        .instructions {
-            background: #f8f9fa;
-            border-left: 4px solid var(--buzz-blue);
-            padding: 1px 15px;
-            text-align: left;
-            margin: 15px 0;
-            border-radius: 4px;
-        }
-
-        #buzzer-status {
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 15px 0;
-            transition: all 0.3s;
-        }
+        .instructions { background: #f8f9fa; border-left: 4px solid var(--buzz-blue); padding: 1px 15px; text-align: left; margin: 15px 0; border-radius: 4px; }
+        #buzzer-status { font-weight: bold; padding: 10px; border-radius: 5px; margin: 15px 0; transition: all 0.3s; }
         #buzzer-status.ok { background-color: #eaf6ec; color: var(--validated-color); }
         #buzzer-status.ko { background-color: #fbecec; color: var(--incorrect-color); }
-        
         #player-setup { margin: 20px 0; }
-        #player-names-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            text-align: left;
-            margin-top: 10px;
-        }
+        #player-names-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; text-align: left; margin-top: 10px; }
         .player-input-group label { font-weight: bold; margin-bottom: 5px; display: block; }
         .player-input-group input { width: 95%; padding: 8px; border: 2px solid #ddd; border-radius: 5px; }
-
-        #question-input {
-            width: 95%;
-            height: 150px;
-            margin-top: 10px;
-            padding: 10px;
-            border: 2px dashed #bdc3c7;
-            border-radius: 5px;
-            font-family: monospace;
-        }
-        
+        #question-input { width: 95%; height: 150px; margin-top: 10px; padding: 10px; border: 2px dashed #bdc3c7; border-radius: 5px; font-family: monospace; }
         .button {
-            background-color: var(--primary-color);
-            color: var(--light-color);
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background-color 0.3s, transform 0.2s;
+            background-color: var(--primary-color); color: var(--light-color); border: none; padding: 15px 30px; font-size: 1.2em;
+            font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 20px; transition: background-color 0.3s, transform 0.2s;
         }
         .button:hover { background-color: #34495e; transform: translateY(-2px); }
 
         /* --- Écran de Jeu --- */
-        #answers-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
+        #answers-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .answer {
-            background-color: var(--light-color);
-            border: 4px solid;
-            border-radius: 10px;
-            padding: 20px;
-            font-size: 1.2em;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 60px;
+            background-color: var(--light-color); border: 4px solid; border-radius: 10px; padding: 20px; font-size: 1.2em;
+            transition: all 0.2s; display: flex; align-items: center; justify-content: center; min-height: 60px;
         }
-        #answer-0 { border-color: var(--buzz-blue); }
-        #answer-1 { border-color: var(--buzz-orange); }
-        #answer-2 { border-color: var(--buzz-green); }
-        #answer-3 { border-color: var(--buzz-yellow); }
-
+        #answer-0 { border-color: var(--buzz-blue); } #answer-1 { border-color: var(--buzz-orange); }
+        #answer-2 { border-color: var(--buzz-green); } #answer-3 { border-color: var(--buzz-yellow); }
         .answer.correct { background-color: var(--correct-color); color: var(--light-color); border-color: var(--correct-color); transform: scale(1.05); }
         .answer.incorrect { background-color: var(--incorrect-color); color: var(--light-color); border-color: var(--incorrect-color); opacity: 0.7; }
-        
         #timer-container { width: 100%; height: 10px; background-color: #bdc3c7; border-radius: 5px; margin-top: 20px; overflow: hidden; }
         #timer-bar { width: 100%; height: 100%; background-color: var(--buzz-blue); transition: width 0.1s linear; }
-        
-        #scores-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
-            font-weight: bold;
-            font-size: 1.1em;
-            text-align: left;
-        }
+        #scores-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; font-weight: bold; font-size: 1.1em; text-align: left; }
         .player-status .status-icon { margin-left: 8px; font-size: 1.2em; }
         .player-status.waiting .status-icon { color: var(--waiting-color); }
         .player-status.validated .status-icon { color: var(--validated-color); }
 
         /* --- Écran de Fin --- */
         #final-ranking { list-style-type: none; padding: 0; }
-        #final-ranking li {
-            display: flex;
-            justify-content: space-between;
-            background-color: #ecf0f1;
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 5px;
-            font-size: 1.3em;
-        }
+        #final-ranking li { display: flex; justify-content: space-between; background-color: #ecf0f1; margin: 10px 0; padding: 15px; border-radius: 5px; font-size: 1.3em; }
         #final-ranking li:first-child { background-color: #f1c40f; font-weight: bold; }
     </style>
 </head>
 <body>
-
     <div class="container">
         <div id="setup-screen" class="active">
             <h1>🚀 Quiz Cor-Tech 🚀</h1>
             <div id="buzzer-status">Détection des buzzers...</div>
-            
-            <div class="instructions">
-                <p><strong>Règle du jeu :</strong> Appuyez sur une couleur pour choisir votre réponse, puis sur le <strong>gros bouton rouge</strong> pour la valider !</p>
-            </div>
-
+            <div class="instructions"><p><strong>Règle du jeu :</strong> Appuyez sur une couleur pour choisir, puis sur le <strong>gros bouton rouge</strong> pour valider !</p></div>
             <div id="player-setup">
                 <h3>Noms des Joueurs</h3>
                 <div id="player-names-container">
@@ -193,12 +90,10 @@
                     <div class="player-input-group"><label for="player-4-name">Joueur 4</label><input type="text" id="player-4-name" placeholder="Nom du joueur 4"></div>
                 </div>
             </div>
-
             <h3>Questions du Quiz</h3>
-            <textarea id="question-input" placeholder="Collez vos questions ici... (Question, 4 réponses, étoile* pour la bonne, ligne vide entre chaque bloc)"></textarea>
+            <textarea id="question-input" placeholder="Collez vos questions ici..."></textarea>
             <button class="button" onclick="startGame()">Lancer le Tournoi !</button>
         </div>
-
         <div id="game-screen">
              <div id="question-container"><p id="question-number"></p><h2 id="question-text"></h2></div>
              <div id="answers-container">
@@ -208,7 +103,6 @@
              <div id="timer-container"><div id="timer-bar"></div></div>
              <div id="scores-container"></div>
         </div>
-        
         <div id="end-screen">
              <h1>Partie Terminée !</h1><h2>Classement Final</h2>
              <ul id="final-ranking"></ul>
@@ -218,25 +112,80 @@
     </div>
 
     <script>
-        // --- VARIABLES GLOBALES ---
-        let questions = [];
-        let currentQuestionIndex = 0;
-        let scores = {};
-        let playerNames = [];
-        let playerAnswers = {}; // { playerId: { answer: 2, validated: false } }
-        
-        let timerInterval;
-        let isRevealing = false;
-        const TIME_PER_QUESTION = 20;
-        const POINTS_PER_ANSWER = 100;
-        
-        // --- ÉLÉMENTS DU DOM ---
+        // --- VARIABLES GLOBALES ET ÉLÉMENTS DU DOM (inchangés) ---
+        let questions = []; let currentQuestionIndex = 0; let scores = {}; let playerNames = [];
+        let playerAnswers = {}; let timerInterval; let isRevealing = false;
+        const TIME_PER_QUESTION = 20; const POINTS_PER_ANSWER = 100;
         const setupScreen = document.getElementById('setup-screen');
         const gameScreen = document.getElementById('game-screen');
         const endScreen = document.getElementById('end-screen');
         const buzzerStatusEl = document.getElementById('buzzer-status');
+        
+        // --- FONCTIONS DE JEU (la plupart inchangées) ---
+        function updateBuzzerStatus() { /* ... code inchangé ... */ }
+        window.addEventListener('gamepadconnected', () => setTimeout(updateBuzzerStatus, 100));
+        window.addEventListener('gamepaddisconnected', updateBuzzerStatus);
+        setInterval(updateBuzzerStatus, 3000); updateBuzzerStatus();
+        function parseQuestions() { /* ... code inchangé ... */ }
+        function startGame() { /* ... code inchangé ... */ }
+        function showQuestion() { /* ... code inchangé ... */ }
+        function startTimer() { /* ... code inchangé ... */ }
+        function handleAnswer(playerId, answerIndex) { /* ... code inchangé ... */ }
+        function handleValidation(playerId) { /* ... code inchangé ... */ }
+        function checkAllValidated() { /* ... code inchangé ... */ }
+        function revealAnswer() { /* ... code inchangé ... */ }
+        function nextQuestion() { /* ... code inchangé ... */ }
+        function resetQuestionState() { /* ... code inchangé ... */ }
+        function updatePlayersStatusDisplay() { /* ... code inchangé ... */ }
+        function endGame() { /* ... code inchangé ... */ }
+        function restartGame() { /* ... code inchangé ... */ }
+        
+        // --- BOUCLE DE JEU PRINCIPALE (MODIFIÉE) ---
+        const playerButtonPressed = {};
+        function gameLoop() {
+            // Correspondance entre les boutons détectés par Steam et les réponses du jeu.
+            // À ajuster si vous changez la configuration dans Steam.
+            const buzzButtonMap = {
+                // 'N° du bouton physique': N° de la réponse dans le jeu (0=Bleu, 1=Orange, etc.)
+                '9': 0, // Bouton 'A' de Steam (b9) -> BLEU
+                '6': 1, // Bouton 'X' de Steam (b6) -> ORANGE (ou Jaune)
+                '7': 2, // Bouton 'Y' de Steam (b7) -> VERT
+                '8': 3, // Bouton 'B' de Steam (b8) -> JAUNE (ou l'autre couleur)
+            };
+            
+            const gamepads = navigator.getGamepads();
+            if (!gamepads) return;
 
-        // --- GESTION DES BUZZERS ---
+            for (let i = 0; i < gamepads.length; i++) {
+                const gp = gamepads[i];
+                if (gp) {
+                    if (!playerButtonPressed[i]) { playerButtonPressed[i] = Array(gp.buttons.length).fill(false); }
+                    
+                    gp.buttons.forEach((button, buttonIndex) => {
+                        if (button.pressed && !playerButtonPressed[i][buttonIndex]) {
+                            // --- TRADUCTION DES BOUTONS DE COULEUR ---
+                            const answerIndex = buzzButtonMap[buttonIndex];
+                            if (answerIndex !== undefined) {
+                                handleAnswer(i, answerIndex);
+                            }
+                            
+                            // --- BOUTON DE VALIDATION ---
+                            // Le bouton "rightshoulder" (R1) est l'index 5.
+                            if (buttonIndex === 5) {
+                                handleValidation(i);
+                            }
+                            
+                            playerButtonPressed[i][buttonIndex] = true;
+                        } else if (!button.pressed) {
+                            playerButtonPressed[i][buttonIndex] = false;
+                        }
+                    });
+                }
+            }
+            if(gameScreen.classList.contains('active')) { requestAnimationFrame(gameLoop); }
+        }
+
+        // --- Colle des fonctions non modifiées pour que le script soit complet ---
         function updateBuzzerStatus() {
             const gamepads = navigator.getGamepads().filter(gp => gp && gp.buttons.length >= 4);
             const count = gamepads.length;
@@ -248,12 +197,6 @@
                 buzzerStatusEl.className = 'ko';
             }
         }
-        window.addEventListener('gamepadconnected', () => setTimeout(updateBuzzerStatus, 100));
-        window.addEventListener('gamepaddisconnected', updateBuzzerStatus);
-        setInterval(updateBuzzerStatus, 3000); // Vérification périodique
-        updateBuzzerStatus(); // Appel initial
-        
-        // --- GESTION DU JEU ---
         function parseQuestions() {
             const input = document.getElementById('question-input').value.trim();
             if (!input) return;
@@ -269,12 +212,9 @@
                 return { question: questionText, answers: cleanedAnswers, correct: correctAnswerIndex };
             }).filter(q => q !== null);
         }
-
         function startGame() {
             parseQuestions();
-            if (questions.length === 0) {
-                alert("Format des questions incorrect ou champ vide. Veuillez vérifier."); return;
-            }
+            if (questions.length === 0) { alert("Format des questions incorrect ou champ vide. Veuillez vérifier."); return; }
             playerNames = [];
             for (let i = 0; i < 4; i++) {
                 const nameInput = document.getElementById(`player-${i + 1}-name`);
@@ -282,10 +222,8 @@
             }
             scores = {}; currentQuestionIndex = 0;
             setupScreen.classList.remove('active'); gameScreen.classList.add('active'); endScreen.classList.remove('active');
-            showQuestion();
-            requestAnimationFrame(gameLoop);
+            showQuestion(); requestAnimationFrame(gameLoop);
         }
-        
         function showQuestion() {
             isRevealing = false;
             gameScreen.style.opacity = 0;
@@ -294,14 +232,10 @@
                 const q = questions[currentQuestionIndex];
                 document.getElementById('question-number').innerText = `Question ${currentQuestionIndex + 1} / ${questions.length}`;
                 document.getElementById('question-text').innerText = q.question;
-                q.answers.forEach((answer, index) => {
-                    document.getElementById(`answer-${index}`).innerText = answer;
-                });
-                startTimer();
-                gameScreen.style.opacity = 1;
+                q.answers.forEach((answer, index) => { document.getElementById(`answer-${index}`).innerText = answer; });
+                startTimer(); gameScreen.style.opacity = 1;
             }, 500);
         }
-        
         function startTimer() {
             let timeLeft = TIME_PER_QUESTION;
             const timerBar = document.getElementById('timer-bar');
@@ -310,76 +244,54 @@
             timerInterval = setInterval(() => {
                 timeLeft -= 0.1;
                 timerBar.style.width = `${(timeLeft / TIME_PER_QUESTION) * 100}%`;
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    if (!isRevealing) revealAnswer();
-                }
+                if (timeLeft <= 0) { clearInterval(timerInterval); if (!isRevealing) revealAnswer(); }
             }, 100);
         }
-
         function handleAnswer(playerId, answerIndex) {
             if (isRevealing || (playerAnswers[playerId] && playerAnswers[playerId].validated)) return;
             playerAnswers[playerId] = { answer: answerIndex, validated: false };
             updatePlayersStatusDisplay();
         }
-
         function handleValidation(playerId) {
             if (isRevealing || !playerAnswers[playerId] || playerAnswers[playerId].validated) return;
             playerAnswers[playerId].validated = true;
-            updatePlayersStatusDisplay();
-            checkAllValidated();
+            updatePlayersStatusDisplay(); checkAllValidated();
         }
-        
         function checkAllValidated() {
             const answeredPlayers = Object.keys(playerAnswers);
             if (answeredPlayers.length === 0) return;
             const allValidated = answeredPlayers.every(id => playerAnswers[id].validated);
-            if (allValidated) {
-                if (!isRevealing) revealAnswer();
-            }
+            if (allValidated) { if (!isRevealing) revealAnswer(); }
         }
-
         function revealAnswer() {
             isRevealing = true;
             clearInterval(timerInterval);
             const q = questions[currentQuestionIndex];
-            
             for (const playerId in playerAnswers) {
-                if (playerAnswers[playerId].answer === q.correct) {
-                    scores[playerId] = (scores[playerId] || 0) + POINTS_PER_ANSWER;
-                }
+                if (playerAnswers[playerId].answer === q.correct) { scores[playerId] = (scores[playerId] || 0) + POINTS_PER_ANSWER; }
             }
-            
             for (let i = 0; i < 4; i++) {
                 const answerEl = document.getElementById(`answer-${i}`);
                 if (i === q.correct) { answerEl.classList.add('correct'); } else { answerEl.classList.add('incorrect'); }
             }
-            updatePlayersStatusDisplay();
-            setTimeout(nextQuestion, 4000);
+            updatePlayersStatusDisplay(); setTimeout(nextQuestion, 4000);
         }
-
         function nextQuestion() {
             currentQuestionIndex++;
             if (currentQuestionIndex < questions.length) { showQuestion(); } else { endGame(); }
         }
-        
         function resetQuestionState() {
-            playerAnswers = {};
-            isRevealing = false;
+            playerAnswers = {}; isRevealing = false;
             document.getElementById('timer-bar').style.width = '100%';
-            for (let i = 0; i < 4; i++) {
-                document.getElementById(`answer-${i}`).className = 'answer';
-            }
+            for (let i = 0; i < 4; i++) { document.getElementById(`answer-${i}`).className = 'answer'; }
             updatePlayersStatusDisplay();
         }
-        
         function updatePlayersStatusDisplay() {
             const scoresContainer = document.getElementById('scores-container');
             scoresContainer.innerHTML = '';
             const gamepads = navigator.getGamepads().filter(gp => gp);
             let playerIds = new Set(Object.keys(scores));
             gamepads.forEach(gp => playerIds.add(String(gp.index)));
-
             const sortedPlayerIds = Array.from(playerIds).sort((a,b) => a - b);
             sortedPlayerIds.forEach(id => {
                  const playerEl = document.createElement('div');
@@ -387,31 +299,23 @@
                  const playerName = playerNames[id] || `Joueur ${parseInt(id) + 1}`;
                  const playerScore = scores[id] || 0;
                  let statusIcon = '';
-
                  if (!isRevealing && playerAnswers[id]) {
                      if(playerAnswers[id].validated) {
-                         playerEl.classList.add('validated');
-                         statusIcon = '<span class="status-icon">✔️</span>';
+                         playerEl.classList.add('validated'); statusIcon = '<span class="status-icon">✔️</span>';
                      } else {
-                         playerEl.classList.add('waiting');
-                         statusIcon = '<span class="status-icon">💬</span>';
+                         playerEl.classList.add('waiting'); statusIcon = '<span class="status-icon">💬</span>';
                      }
                  }
                  playerEl.innerHTML = `<span>${playerName}: ${playerScore}</span>${statusIcon}`;
                  scoresContainer.appendChild(playerEl);
             });
         }
-
         function endGame() {
-            gameScreen.classList.remove('active');
-            endScreen.classList.add('active');
+            gameScreen.classList.remove('active'); endScreen.classList.add('active');
             const finalRanking = document.getElementById('final-ranking');
             finalRanking.innerHTML = '';
             const sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-            if (sortedScores.length === 0) {
-                finalRanking.innerHTML = "<li>Aucun score n'a été enregistré.</li>";
-                return;
-            }
+            if (sortedScores.length === 0) { finalRanking.innerHTML = "<li>Aucun score n'a été enregistré.</li>"; return; }
             sortedScores.forEach(([playerId, score], index) => {
                 const li = document.createElement('li');
                 const trophy = index === 0 ? '🏆' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : ''));
@@ -420,43 +324,10 @@
                 finalRanking.appendChild(li);
             });
         }
-        
         function restartGame() {
-            endScreen.classList.remove('active');
-            // On ne réinitialise que l'état du jeu, pas les noms ni les questions
             scores = {}; currentQuestionIndex = 0;
             setupScreen.classList.remove('active'); gameScreen.classList.add('active'); endScreen.classList.remove('active');
-            showQuestion();
-            requestAnimationFrame(gameLoop);
-        }
-
-        // --- BOUCLE DE JEU PRINCIPALE ---
-        const playerButtonPressed = {};
-        function gameLoop() {
-            const gamepads = navigator.getGamepads();
-            if (!gamepads) return;
-
-            for (let i = 0; i < gamepads.length; i++) {
-                const gp = gamepads[i];
-                if (gp) {
-                    if (!playerButtonPressed[i]) { playerButtonPressed[i] = Array(gp.buttons.length).fill(false); }
-                    
-                    gp.buttons.forEach((button, buttonIndex) => {
-                        if (button.pressed && !playerButtonPressed[i][buttonIndex]) {
-                            // Boutons de couleur (indices 0 à 3)
-                            if (buttonIndex < 4) { handleAnswer(i, buttonIndex); }
-                            
-                            // Bouton rouge pour valider (R1 sur manette standard, soit l'index 5)
-                            if (buttonIndex === 5) { handleValidation(i); }
-                            
-                            playerButtonPressed[i][buttonIndex] = true;
-                        } else if (!button.pressed) {
-                            playerButtonPressed[i][buttonIndex] = false;
-                        }
-                    });
-                }
-            }
-            if(gameScreen.classList.contains('active')) { requestAnimationFrame(gameLoop); }
+            showQuestion(); requestAnimationFrame(gameLoop);
         }
     </script>
 </body>
