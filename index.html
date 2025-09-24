@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Cor-Tech</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #ecf0f1;
+            --light-color: #ffffff;
+            --correct-color: #2ecc71;
+            --incorrect-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--primary-color);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background: var(--light-color);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* --- Écrans --- */
+        #setup-screen, #game-screen, #end-screen {
+            display: none; /* Cachés par défaut */
+        }
+
+        #setup-screen.active, #game-screen.active, #end-screen.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        h1, h2 {
+            color: var(--primary-color);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            font-size: 1.1em;
+        }
+
+        /* --- Écran de configuration --- */
+        #question-input {
+            width: 95%;
+            height: 200px;
+            margin-top: 20px;
+            padding: 10px;
+            border: 2px dashed var(--secondary-color);
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        
+        .button {
+            background-color: var(--secondary-color);
+            color: var(--light-color);
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        /* --- Écran de jeu --- */
+        #question-container {
+            min-height: 100px;
+            margin-bottom: 20px;
+        }
+
+        #question-text {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        #answers-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .answer {
+            background-color: var(--light-color);
+            border: 3px solid var(--secondary-color);
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 1.2em;
+            transition: all 0.2s;
+        }
+        
+        .answer.selected-blue { border-color: #007bff; background-color: #e6f2ff; }
+        .answer.selected-orange { border-color: #fd7e14; background-color: #fff4e6; }
+        .answer.selected-green { border-color: #28a745; background-color: #eaf6ec; }
+        .answer.selected-yellow { border-color: #ffc107; background-color: #fff9e6; }
+
+        .answer.correct {
+            background-color: var(--correct-color);
+            color: var(--light-color);
+            border-color: var(--correct-color);
+            transform: scale(1.05);
+        }
+
+        .answer.incorrect {
+            background-color: var(--incorrect-color);
+            color: var(--light-color);
+            border-color: var(--incorrect-color);
+            opacity: 0.7;
+        }
+
+        #timer-container {
+            width: 100%;
+            height: 10px;
+            background-color: #bdc3c7;
+            border-radius: 5px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        #timer-bar {
+            width: 100%;
+            height: 100%;
+            background-color: var(--secondary-color);
+            transition: width 0.1s linear;
+        }
+        
+        #scores-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .player-score {
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        /* --- Écran de fin --- */
+        #final-ranking {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        #final-ranking li {
+            background-color: #ecf0f1;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 1.3em;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #final-ranking li:first-child {
+            background-color: #f1c40f; /* Or */
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="setup-screen" class="active">
+            <h1>Quiz Cor-Tech 🚀</h1>
+            <p>Bonjour Présidente ! Branchez les buzzers USB, puis collez votre questionnaire ci-dessous.</p>
+            <p>Format : La question sur une ligne, puis les 4 réponses sur les lignes suivantes. Ajoutez une étoile (*) à la fin de la bonne réponse.</p>
+            <textarea id="question-input" placeholder="Exemple :
+Quelle est la capitale de la France ?
+A) Berlin
+B) Madrid
+C) Paris*
+D) Rome
+
+Quel est le meilleur club de tech ?
+A) La concurrence
+B) Cor-Tech*
+C) Un autre
+D) Je ne sais pas"></textarea>
+            <button class="button" onclick="startGame()">Lancer le Quiz !</button>
+        </div>
+
+        <div id="game-screen">
+            <div id="question-container">
+                <p id="question-number"></p>
+                <h2 id="question-text"></h2>
+            </div>
+            <div id="answers-container">
+                <div class="answer" id="answer-0"></div>
+                <div class="answer" id="answer-1"></div>
+                <div class="answer" id="answer-2"></div>
+                <div class="answer" id="answer-3"></div>
+            </div>
+            <div id="timer-container">
+                <div id="timer-bar"></div>
+            </div>
+            <div id="scores-container"></div>
+        </div>
+
+        <div id="end-screen">
+            <h1>Partie Terminée !</h1>
+            <h2>Classement Final</h2>
+            <ul id="final-ranking"></ul>
+            <button class="button" onclick="restartGame()">Rejouer avec les mêmes questions</button>
+            <button class="button" onclick="location.reload()">Nouveau Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // --- VARIABLES GLOBALES ---
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let scores = {};
+        let playerAnswers = {}; // Pour savoir qui a répondu quoi
+        let questionTimer;
+        let timerInterval;
+        const TIME_PER_QUESTION = 15; // en secondes
+        const POINTS_PER_ANSWER = 100;
+        
+        const buzzerButtonMap = { 0: 'blue', 1: 'orange', 2: 'green', 3: 'yellow', 4: 'red' };
+        const answerColorMap = { 0: 'blue', 1: 'orange', 2: 'green', 3: 'yellow' };
+
+        // --- ÉLÉMENTS DU DOM ---
+        const setupScreen = document.getElementById('setup-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const endScreen = document.getElementById('end-screen');
+
+        // --- FONCTIONS DE GESTION DU JEU ---
+
+        function parseQuestions() {
+            const input = document.getElementById('question-input').value.trim();
+            const blocks = input.split('\n\n'); // Sépare chaque bloc question/réponses
+            questions = blocks.map(block => {
+                const lines = block.split('\n').filter(line => line.trim() !== '');
+                if (lines.length < 5) return null;
+                const questionText = lines[0];
+                const answers = lines.slice(1, 5).map(answer => answer.trim());
+                const correctAnswerIndex = answers.findIndex(answer => answer.endsWith('*'));
+                
+                if (correctAnswerIndex === -1) return null;
+
+                // Nettoyer les réponses
+                const cleanedAnswers = answers.map(answer => answer.replace('*', '').trim());
+
+                return {
+                    question: questionText,
+                    answers: cleanedAnswers,
+                    correct: correctAnswerIndex
+                };
+            }).filter(q => q !== null); // Filtre les questions mal formatées
+        }
+
+        function startGame() {
+            parseQuestions();
+            if (questions.length === 0) {
+                alert("Le format des questions est incorrect ou le champ est vide. Veuillez vérifier.");
+                return;
+            }
+            
+            scores = {}; // Réinitialise les scores
+            currentQuestionIndex = 0;
+            
+            setupScreen.classList.remove('active');
+            gameScreen.classList.add('active');
+            
+            showQuestion();
+            requestAnimationFrame(gameLoop); // Lance la boucle de détection des buzzers
+        }
+        
+        function showQuestion() {
+            // Animation de transition (simple fondu)
+            gameScreen.style.opacity = 0;
+            setTimeout(() => {
+                resetQuestionState();
+                const q = questions[currentQuestionIndex];
+                
+                document.getElementById('question-number').innerText = `Question ${currentQuestionIndex + 1} / ${questions.length}`;
+                document.getElementById('question-text').innerText = q.question;
+                
+                q.answers.forEach((answer, index) => {
+                    document.getElementById(`answer-${index}`).innerText = answer;
+                });
+                
+                startTimer();
+                gameScreen.style.opacity = 1;
+            }, 500); // Délai pour l'animation
+        }
+
+        function startTimer() {
+            let timeLeft = TIME_PER_QUESTION;
+            const timerBar = document.getElementById('timer-bar');
+            timerBar.style.transition = 'none'; // reset
+            timerBar.style.width = '100%';
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft -= 0.1;
+                timerBar.style.transition = 'width 0.1s linear';
+                timerBar.style.width = `${(timeLeft / TIME_PER_QUESTION) * 100}%`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    revealAnswer();
+                }
+            }, 100);
+        }
+
+        function handleAnswer(playerId, answerIndex) {
+            // Un joueur ne peut répondre qu'une fois par question
+            if (playerAnswers[playerId] !== undefined) return;
+            
+            playerAnswers[playerId] = answerIndex;
+            
+            const color = answerColorMap[answerIndex];
+            document.getElementById(`answer-${answerIndex}`).classList.add(`selected-${color}`);
+            
+            // Initialiser le score du joueur s'il n'existe pas
+            if (!scores[playerId]) {
+                scores[playerId] = 0;
+            }
+            updateScoresDisplay();
+        }
+
+        function revealAnswer() {
+            clearInterval(timerInterval);
+            const q = questions[currentQuestionIndex];
+            
+            // Calcul des points
+            for (const playerId in playerAnswers) {
+                if (playerAnswers[playerId] === q.correct) {
+                    scores[playerId] += POINTS_PER_ANSWER;
+                }
+            }
+            updateScoresDisplay();
+
+            // Affichage visuel
+            for (let i = 0; i < 4; i++) {
+                const answerEl = document.getElementById(`answer-${i}`);
+                if (i === q.correct) {
+                    answerEl.classList.add('correct');
+                } else {
+                    answerEl.classList.add('incorrect');
+                }
+            }
+
+            // Passe à la question suivante après un délai
+            setTimeout(nextQuestion, 4000); // 4 secondes pour voir la réponse
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                endGame();
+            }
+        }
+        
+        function resetQuestionState() {
+            playerAnswers = {};
+            document.getElementById('timer-bar').style.width = '100%';
+            for (let i = 0; i < 4; i++) {
+                const answerEl = document.getElementById(`answer-${i}`);
+                answerEl.className = 'answer'; // Réinitialise toutes les classes
+            }
+        }
+        
+        function updateScoresDisplay() {
+            const scoresContainer = document.getElementById('scores-container');
+            scoresContainer.innerHTML = '';
+            // Trie les joueurs pour un affichage cohérent
+            const sortedPlayerIds = Object.keys(scores).sort();
+            
+            for (const playerId of sortedPlayerIds) {
+                const scoreEl = document.createElement('div');
+                scoreEl.className = 'player-score';
+                scoreEl.innerText = `Joueur ${parseInt(playerId) + 1}: ${scores[playerId]}`;
+                scoresContainer.appendChild(scoreEl);
+            }
+        }
+
+        function endGame() {
+            gameScreen.classList.remove('active');
+            endScreen.classList.add('active');
+
+            const finalRanking = document.getElementById('final-ranking');
+            finalRanking.innerHTML = '';
+
+            const sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+
+            sortedScores.forEach(([playerId, score]) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>🏆 Joueur ${parseInt(playerId) + 1}</span> <strong>${score} points</strong>`;
+                finalRanking.appendChild(li);
+            });
+        }
+        
+        function restartGame() {
+            endScreen.classList.remove('active');
+            startGame();
+        }
+
+        // --- GESTION DES BUZZERS (API GAMEPAD) ---
+        const playerButtonPressed = {}; // Pour éviter les pressions multiples
+
+        function gameLoop() {
+            const gamepads = navigator.getGamepads();
+            if (!gamepads) return;
+
+            for (let i = 0; i < gamepads.length; i++) {
+                const gp = gamepads[i];
+                if (gp) {
+                    // Initialiser le statut des boutons pour ce joueur
+                    if (!playerButtonPressed[i]) {
+                        playerButtonPressed[i] = [false, false, false, false, false];
+                    }
+                    
+                    gp.buttons.forEach((button, buttonIndex) => {
+                        // On ne gère que les 4 boutons de couleur (indices 0 à 3)
+                        if (buttonIndex < 4) {
+                            if (button.pressed && !playerButtonPressed[i][buttonIndex]) {
+                                // Le bouton VIENT d'être pressé
+                                handleAnswer(i, buttonIndex);
+                                playerButtonPressed[i][buttonIndex] = true;
+                            } else if (!button.pressed) {
+                                // Le bouton a été relâché
+                                playerButtonPressed[i][buttonIndex] = false;
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Continue la boucle tant que le jeu est en cours
+            if(gameScreen.classList.contains('active')) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+    </script>
+</body>
+</html>
