@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Cor-Tech - v5 (Configurable)</title>
+    <title>Quiz Cor-Tech - v6 (Auto-Calibration)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
         :root {
@@ -23,26 +23,17 @@
         .button:hover { background-color: #34495e; transform: translateY(-2px); }
         .button.secondary { background-color: #7f8c8d; }
         .button.secondary:hover { background-color: #95a5a6; }
+        hr { border: 0; height: 1px; background: #eee; margin: 20px 0; }
         
-        /* --- Écran de Configuration --- */
-        #config-container { display: flex; flex-direction: column; gap: 30px; }
-        .config-section h3 { border-bottom: 2px solid var(--background-color); padding-bottom: 10px; }
-        #buzzer-tester-area { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; min-height: 50px;}
-        .tester-player { border: 1px solid #ddd; border-radius: 8px; padding: 10px; background: #fafafa; }
-        .tester-player h4 { margin: 0 0 10px 0; }
-        .tester-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
-        .tester-button { padding: 5px 10px; border-radius: 5px; background: #eee; font-size: 0.9em; transition: all 0.1s; border: 1px solid #ddd; }
-        .tester-button.pressed { transform: scale(1.1); font-weight: bold; background-color: var(--buzz-yellow); border-color: var(--waiting-color); }
-        #buzzer-mapper-area table { width: 100%; border-collapse: collapse; text-align: left; }
-        #buzzer-mapper-area th, #buzzer-mapper-area td { padding: 12px; border-bottom: 1px solid #eee; }
-        .map-button { font-size: 0.9em; padding: 5px 10px; cursor: pointer; border-radius: 5px; border: 1px solid #ccc; background: #f9f9f9; }
-        .map-button.listening { background: var(--buzz-orange); color: white; border-color: var(--buzz-orange); animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(253, 126, 20, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(253, 126, 20, 0); } 100% { box-shadow: 0 0 0 0 rgba(253, 126, 20, 0); } }
-        .color-label { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
-        #mapping-status { font-weight: bold; color: var(--buzz-orange); min-height: 20px; }
+        /* --- Écran de Configuration (Assistant) --- */
+        #config-screen { padding: 40px; }
+        #wizard-box { border: 3px dashed var(--buzz-blue); padding: 30px; border-radius: 15px; }
+        #wizard-instruction { font-size: 2em; font-weight: bold; min-height: 100px; display: flex; align-items: center; justify-content: center; }
+        .instruction-color { padding: 5px 10px; border-radius: 5px; color: white; }
+        .progress-bar-container { width: 100%; background: #eee; border-radius: 5px; height: 10px; margin-top: 20px; }
+        #wizard-progress-bar { width: 0%; height: 100%; background: var(--validated-color); border-radius: 5px; transition: width 0.3s; }
 
         /* --- Écran de Démarrage --- */
-        .instructions { background: #f8f9fa; border-left: 4px solid var(--buzz-blue); padding: 1px 15px; text-align: left; margin: 15px 0; border-radius: 4px; }
         #buzzer-status { font-weight: bold; padding: 10px; border-radius: 5px; margin: 15px 0; transition: all 0.3s; }
         #buzzer-status.ok { background-color: #eaf6ec; color: var(--validated-color); }
         #buzzer-status.ko { background-color: #fbecec; color: var(--incorrect-color); }
@@ -74,9 +65,8 @@
         <div id="setup-screen" class="active">
             <h1>🚀 Quiz Cor-Tech 🚀</h1>
             <div id="buzzer-status">Détection des buzzers...</div>
-            <div class="instructions"><p><strong>Règle du jeu :</strong> Appuyez sur une couleur pour choisir, puis sur le <strong>gros bouton rouge</strong> pour valider !</p></div>
-            <button class="button secondary" onclick="switchScreen('config-screen')">Tester & Configurer les Buzzers</button>
-            <hr style="margin: 20px 0; border: 1px solid #eee;">
+            <button class="button secondary" onclick="startConfigurationWizard()">Re-Calibrer les Buzzers</button>
+            <hr>
             <h3>Noms des Joueurs</h3>
             <div id="player-names-container">
                 <div class="player-input-group"><label for="player-1-name">Joueur 1</label><input type="text" id="player-1-name" placeholder="Nom du joueur 1"></div>
@@ -90,22 +80,14 @@
         </div>
 
         <div id="config-screen">
-            <h2>Configuration des Buzzers</h2>
-            <div id="config-container">
-                <div class="config-section">
-                    <h3>Moniteur d'Entrée (Testez vos buzzers ici)</h3>
-                    <div id="buzzer-tester-area">
-                        <p>Aucun buzzer détecté. Branchez-les ou assurez-vous que Steam est lancé...</p>
-                    </div>
-                </div>
-                <div class="config-section">
-                    <h3>Mappage des Boutons</h3>
-                    <p>Cliquez sur "Assigner", puis appuyez sur le bouton physique du buzzer correspondant. La configuration est sauvegardée automatiquement.</p>
-                    <p id="mapping-status"></p>
-                    <div id="buzzer-mapper-area"></div>
+            <h2>Assistant de Calibration des Buzzers</h2>
+            <p>Suivez les instructions pour configurer vos buzzers. Vous n'aurez à le faire qu'une seule fois.</p>
+            <div id="wizard-box">
+                <div id="wizard-instruction">Préparation...</div>
+                <div class="progress-bar-container">
+                    <div id="wizard-progress-bar"></div>
                 </div>
             </div>
-            <button class="button" onclick="saveConfigAndReturn()">Sauvegarder et Retourner</button>
         </div>
 
         <div id="game-screen">
@@ -131,27 +113,24 @@
         let questions = []; let currentQuestionIndex = 0; let scores = {}; let playerNames = [];
         let playerAnswers = {}; let timerInterval; let isRevealing = false;
         const TIME_PER_QUESTION = 20; const POINTS_PER_ANSWER = 100;
+        let buzzConfig = {}; // Structure: { '0': { blue: 9, orange: 6, ... }, '1': ... }
+        let connectedGamepads = [];
         
-        // --- GESTION DE LA CONFIGURATION ---
-        let buzzConfig = {}; // { '0': { blue: 9, orange: 6, green: 7, yellow: 8, red: 5 }, '1': ... }
-        let isMapping = false;
-        let mappingTarget = { player: null, action: null }; // Ex: { player: '0', action: 'blue' }
-        const ACTIONS = [ // Actions et couleurs associées pour le configurateur
-            { id: 'blue', label: 'Réponse Bleue', color: 'var(--buzz-blue)'},
-            { id: 'orange', label: 'Réponse Orange', color: 'var(--buzz-orange)'},
-            { id: 'green', label: 'Réponse Verte', color: 'var(--buzz-green)'},
-            { id: 'yellow', label: 'Réponse Jaune', color: 'var(--buzz-yellow)'},
-            { id: 'red', label: 'Validation (Rouge)', color: 'var(--buzz-red)'}
+        const ACTIONS = [
+            { id: 'blue', label: 'BLEU', color: 'var(--buzz-blue)'},
+            { id: 'orange', label: 'ORANGE', color: 'var(--buzz-orange)'},
+            { id: 'green', label: 'VERT', color: 'var(--buzz-green)'},
+            { id: 'yellow', label: 'JAUNE', color: 'var(--buzz-yellow)'},
+            { id: 'red', label: 'ROUGE (Validation)', color: 'var(--buzz-red)'}
         ];
 
         // --- ÉLÉMENTS DU DOM ---
         const allScreens = document.querySelectorAll('.container > div');
         const buzzerStatusEl = document.getElementById('buzzer-status');
-        const testerArea = document.getElementById('buzzer-tester-area');
-        const mapperArea = document.getElementById('buzzer-mapper-area');
-        const mappingStatusEl = document.getElementById('mapping-status');
-
-        // --- LOGIQUE DE NAVIGATION ET DE DÉMARRAGE ---
+        const wizardInstructionEl = document.getElementById('wizard-instruction');
+        const wizardProgressBar = document.getElementById('wizard-progress-bar');
+        
+        // --- LOGIQUE DE DÉMARRAGE ET NAVIGATION ---
         function switchScreen(screenId) {
             allScreens.forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
@@ -159,12 +138,12 @@
 
         window.onload = function() {
             loadConfig();
-            updateBuzzerStatus();
-            // Lancer la boucle de détection permanente
             setInterval(gamepadLoop, 100); 
         };
 
-        // --- GESTION DE LA CONFIGURATION (SAUVEGARDE, CHARGEMENT, UI) ---
+        // --- GESTION DE LA CONFIGURATION (ASSISTANT) ---
+        let wizardState = { active: false, playerIndex: 0, actionIndex: 0 };
+
         function saveConfig() {
             localStorage.setItem('buzzConfig', JSON.stringify(buzzConfig));
         }
@@ -173,203 +152,173 @@
             const savedConfig = localStorage.getItem('buzzConfig');
             if (savedConfig) {
                 buzzConfig = JSON.parse(savedConfig);
-            } else {
-                // Configuration par défaut (basée sur la dernière discussion)
-                buzzConfig = { 
-                    '0': { blue: 9, orange: 6, green: 7, yellow: 8, red: 5 }
-                };
             }
         }
-
-        function saveConfigAndReturn(){
-            saveConfig();
-            alert("Configuration sauvegardée !");
-            switchScreen('setup-screen');
+        
+        function isConfigValid() {
+            if (Object.keys(buzzConfig).length === 0) return false;
+            // Vérifie si tous les joueurs connectés ont une configuration complète
+            return connectedGamepads.every(gp => {
+                const config = buzzConfig[gp.index];
+                return config && ACTIONS.every(action => typeof config[action.id] === 'number');
+            });
         }
 
-        function startMapping(playerId, actionId) {
-            isMapping = true;
-            mappingTarget = { player: playerId, action: actionId };
-            document.querySelectorAll('.map-button').forEach(b => b.classList.remove('listening'));
-            const buttonEl = document.getElementById(`map-btn-${playerId}-${actionId}`);
-            buttonEl.classList.add('listening');
-            buttonEl.textContent = '...';
-            mappingStatusEl.textContent = `Appuyez sur le bouton désiré pour le Joueur ${parseInt(playerId) + 1}...`;
+        function startConfigurationWizard() {
+            if (connectedGamepads.length === 0) {
+                alert("Aucun buzzer n'est branché ! Veuillez les connecter avant de lancer la calibration.");
+                return;
+            }
+            buzzConfig = {}; // Réinitialise la config
+            wizardState = { active: true, playerIndex: 0, actionIndex: 0 };
+            switchScreen('config-screen');
+            askNextButtonPress();
         }
 
-        function assignButton(buttonIndex) {
-            if (!isMapping) return;
-            const { player, action } = mappingTarget;
-
-            // Initialiser l'objet pour ce joueur si nécessaire
-            if (!buzzConfig[player]) buzzConfig[player] = {};
+        function askNextButtonPress() {
+            if (!wizardState.active) return;
             
-            // Vérifier si ce bouton est déjà assigné à une autre action pour CE joueur
-            for(const act in buzzConfig[player]){
-                if(buzzConfig[player][act] === buttonIndex){
-                    buzzConfig[player][act] = null; // Désassigner l'ancienne action
+            const player = connectedGamepads[wizardState.playerIndex];
+            const action = ACTIONS[wizardState.actionIndex];
+
+            wizardInstructionEl.innerHTML = `
+                Appuyez sur le bouton <span class="instruction-color" style="background-color:${action.color};">${action.label}</span> du Joueur ${player.index + 1}
+            `;
+            
+            const totalSteps = connectedGamepads.length * ACTIONS.length;
+            const currentStep = wizardState.playerIndex * ACTIONS.length + wizardState.actionIndex;
+            wizardProgressBar.style.width = `${(currentStep / totalSteps) * 100}%`;
+        }
+
+        function onWizardButtonPress(playerIndex, buttonIndex) {
+            if (!wizardState.active || playerIndex !== connectedGamepads[wizardState.playerIndex].index) return;
+            
+            // Évite d'assigner un bouton déjà utilisé pour ce joueur
+            const currentConfig = buzzConfig[playerIndex] || {};
+            for (const key in currentConfig) {
+                if (currentConfig[key] === buttonIndex) {
+                    alert(`Ce bouton est déjà assigné pour ce joueur. Veuillez en choisir un autre.`);
+                    return;
                 }
             }
 
-            buzzConfig[player][action] = buttonIndex;
-            
-            isMapping = false;
-            mappingStatusEl.textContent = '';
-            populateMapper(); // Rafraîchir l'affichage du mappage
-        }
+            if (!buzzConfig[playerIndex]) buzzConfig[playerIndex] = {};
+            const actionId = ACTIONS[wizardState.actionIndex].id;
+            buzzConfig[playerIndex][actionId] = buttonIndex;
 
-        function populateTesterAndMapper(gamepads) {
-            if (!document.getElementById('config-screen').classList.contains('active')) return;
-            
-            if (gamepads.length === 0) {
-                testerArea.innerHTML = "<p>Aucun buzzer détecté. Branchez-les ou assurez-vous que Steam est lancé...</p>";
-                mapperArea.innerHTML = "";
-                return;
+            // Passer à l'étape suivante
+            wizardState.actionIndex++;
+            if (wizardState.actionIndex >= ACTIONS.length) {
+                wizardState.actionIndex = 0;
+                wizardState.playerIndex++;
             }
 
-            // Moniteur d'entrée (Testeur)
-            let testerHTML = '';
-            gamepads.forEach(gp => {
-                testerHTML += `
-                    <div class="tester-player" id="tester-player-${gp.index}">
-                        <h4>Joueur ${gp.index + 1}</h4>
-                        <div class="tester-buttons">
-                            ${gp.buttons.map((b, i) => `<div class="tester-button" id="tester-btn-${gp.index}-${i}">B${i}</div>`).join('')}
-                        </div>
-                    </div>
-                `;
-            });
-            testerArea.innerHTML = testerHTML;
-
-            // Mappage des boutons
-            let mapperHTML = `
-                <table>
-                    <tr>
-                        <th>Action du Jeu</th>
-                        ${gamepads.map(gp => `<th>Joueur ${gp.index + 1}</th>`).join('')}
-                    </tr>
-            `;
-            ACTIONS.forEach(action => {
-                mapperHTML += `<tr><td><span class="color-label" style="background-color:${action.color};"></span>${action.label}</td>`;
-                gamepads.forEach(gp => {
-                    const assignedButton = (buzzConfig[gp.index] && buzzConfig[gp.index][action.id] !== null) ? `Bouton ${buzzConfig[gp.index][action.id]}` : 'Non assigné';
-                    mapperHTML += `
-                        <td>
-                            <button class="map-button" id="map-btn-${gp.index}-${action.id}" onclick="startMapping('${gp.index}', '${action.id}')">
-                                ${assignedButton}
-                            </button>
-                        </td>
-                    `;
-                });
-                mapperHTML += `</tr>`;
-            });
-            mapperHTML += `</table>`;
-            mapperArea.innerHTML = mapperHTML;
+            if (wizardState.playerIndex >= connectedGamepads.length) {
+                // Fin de la configuration
+                wizardState.active = false;
+                wizardProgressBar.style.width = '100%';
+                wizardInstructionEl.textContent = 'Configuration terminée !';
+                saveConfig();
+                setTimeout(() => {
+                    updateBuzzerStatus();
+                    switchScreen('setup-screen');
+                }, 1500);
+            } else {
+                askNextButtonPress();
+            }
         }
 
         // --- BOUCLE PRINCIPALE (POUR DÉTECTION ET JEU) ---
-        let lastConnectedGamepads = 0;
+        const gamepadState = {}; // Pour ne détecter qu'une seule pression
         function gamepadLoop() {
             const rawGamepads = navigator.getGamepads();
             if (!rawGamepads) return;
-
-            const gamepads = Array.from(rawGamepads).filter(gp => gp && gp.buttons.length > 0);
+            const newlyConnected = Array.from(rawGamepads).filter(gp => gp && gp.buttons.length > 0);
             
-            // Si le nombre de manettes change, on met à jour le statut et le configurateur
-            if(gamepads.length !== lastConnectedGamepads){
-                lastConnectedGamepads = gamepads.length;
-                updateBuzzerStatus(gamepads.length);
-                populateTesterAndMapper(gamepads);
+            if (newlyConnected.length !== connectedGamepads.length) {
+                connectedGamepads = newlyConnected;
+                updateBuzzerStatus();
             }
 
-            // Gestion des inputs
-            gamepads.forEach(gp => {
+            connectedGamepads.forEach(gp => {
+                if (!gamepadState[gp.index]) gamepadState[gp.index] = { buttons: [] };
+                
                 gp.buttons.forEach((button, buttonIndex) => {
-                    // Si on est sur l'écran de config
-                    if (document.getElementById('config-screen').classList.contains('active')) {
-                        const btnEl = document.getElementById(`tester-btn-${gp.index}-${buttonIndex}`);
-                        if (button.pressed) {
-                            if(btnEl) btnEl.classList.add('pressed');
-                            if (isMapping) assignButton(buttonIndex);
-                        } else {
-                            if(btnEl) btnEl.classList.remove('pressed');
-                        }
-                    }
-                    
-                    // Si on est sur l'écran de jeu (logique existante)
-                    if(document.getElementById('game-screen').classList.contains('active')){
-                        const playerButtonPressed = game.playerButtonPressed; // (simulation)
-                        if (button.pressed && !playerButtonPressed[gp.index]?.[buttonIndex]) {
+                    const wasPressed = gamepadState[gp.index].buttons[buttonIndex];
+                    if (button.pressed && !wasPressed) {
+                        // LE BOUTON VIENT D'ÊTRE PRESSÉ
+                        if (wizardState.active) {
+                            onWizardButtonPress(gp.index, buttonIndex);
+                        } else if (document.getElementById('game-screen').classList.contains('active')) {
                             handleGameInput(gp.index, buttonIndex);
-                            if(!playerButtonPressed[gp.index]) playerButtonPressed[gp.index] = {};
-                            playerButtonPressed[gp.index][buttonIndex] = true;
-                        } else if (!button.pressed) {
-                            if(playerButtonPressed[gp.index]) playerButtonPressed[gp.index][buttonIndex] = false;
                         }
                     }
+                    gamepadState[gp.index].buttons[buttonIndex] = button.pressed;
                 });
             });
         }
         
-        // --- LOGIQUE DE JEU (Adaptée pour utiliser buzzConfig) ---
-        const game = { playerButtonPressed: {} }; // Namespace pour les variables de jeu
-        
-        function updateBuzzerStatus(count = -1) {
-            const num = count === -1 ? Array.from(navigator.getGamepads()).filter(gp => gp).length : count;
-            if (num > 0) {
-                buzzerStatusEl.textContent = `Statut : ${num} buzzer(s) détecté(s) ✅`;
-                buzzerStatusEl.className = 'ok';
+        // --- LOGIQUE DE JEU ---
+        function updateBuzzerStatus() {
+            if (connectedGamepads.length > 0) {
+                if (isConfigValid()) {
+                    buzzerStatusEl.textContent = `Statut : ${connectedGamepads.length} buzzer(s) détecté(s) et calibré(s) ✅`;
+                    buzzerStatusEl.className = 'ok';
+                } else {
+                    buzzerStatusEl.textContent = `Statut : ${connectedGamepads.length} buzzer(s) détecté(s) mais non calibré(s) ⚠️`;
+                    buzzerStatusEl.className = 'ko';
+                }
             } else {
                 buzzerStatusEl.textContent = `Statut : Aucun buzzer détecté ❌`;
                 buzzerStatusEl.className = 'ko';
             }
         }
 
-        function handleGameInput(playerId, buttonIndex) {
-            const playerConfig = buzzConfig[playerId];
-            if (!playerConfig) return;
-
-            // Chercher à quelle action correspond le bouton pressé
-            for (const actionId in playerConfig) {
-                if (playerConfig[actionId] === buttonIndex) {
-                    const action = ACTIONS.find(a => a.id === actionId);
-                    if (action.id === 'red') {
-                        handleValidation(playerId);
-                    } else {
-                        // 'blue' -> 0, 'orange' -> 1, etc.
-                        const answerIndex = ACTIONS.findIndex(a => a.id === actionId);
-                        handleAnswer(playerId, answerIndex);
-                    }
-                    return; // Sortir dès qu'une action est trouvée
-                }
-            }
-        }
-        
-        // Le reste des fonctions de jeu (startGame, handleAnswer, etc.) est identique au code précédent
-        // Il suffit de les copier ici. Pour la compacité, je remets seulement celles qui sont essentielles.
         function startGame() {
+            if (!isConfigValid()) {
+                startConfigurationWizard();
+                return;
+            }
             parseQuestions(); if(questions.length === 0){ alert("Questions mal formatées."); return; }
             playerNames = [];
             for (let i = 0; i < 4; i++) {
                 const nameInput = document.getElementById(`player-${i + 1}-name`);
                 playerNames[i] = nameInput.value.trim() || `Joueur ${i + 1}`;
             }
-            scores = {}; currentQuestionIndex = 0; game.playerButtonPressed = {};
-            switchScreen('game-screen');
-            showQuestion();
+            scores = {}; currentQuestionIndex = 0;
+            switchScreen('game-screen'); showQuestion();
         }
+
+        function handleGameInput(playerId, buttonIndex) {
+            const playerConfig = buzzConfig[playerId];
+            if (!playerConfig || isRevealing) return;
+
+            for (const actionId in playerConfig) {
+                if (playerConfig[actionId] === buttonIndex) {
+                    if (actionId === 'red') {
+                        handleValidation(playerId);
+                    } else {
+                        const answerIndex = ACTIONS.findIndex(a => a.id === actionId);
+                        if(answerIndex !== -1 && answerIndex < 4) handleAnswer(playerId, answerIndex);
+                    }
+                    return;
+                }
+            }
+        }
+        
+        // Le reste des fonctions de jeu est identique (copié pour être complet)
         function handleAnswer(playerId, answerIndex) {
-            if (isRevealing || (playerAnswers[playerId] && playerAnswers[playerId].validated)) return;
+            if (playerAnswers[playerId] && playerAnswers[playerId].validated) return;
             playerAnswers[playerId] = { answer: answerIndex, validated: false };
             updatePlayersStatusDisplay();
         }
         function handleValidation(playerId) {
-            if (isRevealing || !playerAnswers[playerId] || playerAnswers[playerId].validated) return;
+            if (!playerAnswers[playerId] || playerAnswers[playerId].validated) return;
             playerAnswers[playerId].validated = true;
             updatePlayersStatusDisplay(); checkAllValidated();
         }
         function checkAllValidated() {
-            const answeredPlayers = Object.keys(playerAnswers);
+            const answeredPlayers = connectedGamepads.map(gp => gp.index).filter(id => playerAnswers[id]);
             if (answeredPlayers.length === 0 || isRevealing) return;
             const allValidated = answeredPlayers.every(id => playerAnswers[id].validated);
             if (allValidated) { revealAnswer(); }
@@ -392,7 +341,8 @@
         }
         function showQuestion() {
             isRevealing = false;
-            game.playerButtonPressed = {};
+            gamepadState = {};
+            playerAnswers = {};
             gameScreen.style.opacity = 0;
             setTimeout(() => {
                 resetQuestionState();
@@ -415,7 +365,6 @@
             }, 100);
         }
         function resetQuestionState() {
-            playerAnswers = {}; isRevealing = false;
             document.getElementById('timer-bar').style.width = '100%';
             for (let i = 0; i < 4; i++) { document.getElementById(`answer-${i}`).className = 'answer'; }
             updatePlayersStatusDisplay();
@@ -423,11 +372,8 @@
         function updatePlayersStatusDisplay() {
             const scoresContainer = document.getElementById('scores-container');
             scoresContainer.innerHTML = '';
-            const gamepads = Array.from(navigator.getGamepads()).filter(gp => gp);
-            let playerIds = new Set(Object.keys(scores));
-            gamepads.forEach(gp => playerIds.add(String(gp.index)));
-            const sortedPlayerIds = Array.from(playerIds).sort((a,b) => a - b);
-            sortedPlayerIds.forEach(id => {
+            const playerIds = connectedGamepads.map(gp => gp.index);
+            playerIds.forEach(id => {
                  const playerEl = document.createElement('div');
                  playerEl.className = 'player-status';
                  const playerName = playerNames[id] || `Joueur ${parseInt(id) + 1}`;
@@ -458,13 +404,13 @@
             });
         }
         function restartGame() {
-            scores = {}; currentQuestionIndex = 0; game.playerButtonPressed = {};
+            scores = {}; currentQuestionIndex = 0;
             switchScreen('game-screen');
             showQuestion();
         }
         function parseQuestions() {
             const input = document.getElementById('question-input').value.trim();
-            if (!input) return;
+            if (!input) { questions = []; return; }
             const blocks = input.split('\n\n');
             questions = blocks.map(block => {
                 const lines = block.split('\n').filter(line => line.trim() !== '');
