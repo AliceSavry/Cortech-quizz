@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Cor-Tech v3 (Noms des Joueurs)</title>
+    <title>Quiz Cor-Tech v4 (Validation)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
 
@@ -11,6 +11,7 @@
             --primary-color: #2c3e50; --background-color: #ecf0f1; --light-color: #ffffff;
             --correct-color: #2ecc71; --incorrect-color: #e74c3c; --buzz-blue: #007bff;
             --buzz-orange: #fd7e14; --buzz-green: #28a745; --buzz-yellow: #ffc107;
+            --waiting-color: #f39c12; --validated-color: #2ecc71;
         }
 
         body {
@@ -20,7 +21,7 @@
         }
 
         .container {
-            width: 90%; max-width: 800px; background: var(--light-color); padding: 30px;
+            width: 90%; max-width: 900px; background: var(--light-color); padding: 30px;
             border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
         
@@ -32,51 +33,33 @@
         
         h1, h2, h3 { color: var(--primary-color); }
         h1 { font-size: 2.5em; margin-bottom: 10px; }
-        p { font-size: 1.1em; }
-
-        /* --- NOUVEAU : Styles pour la saisie des noms --- */
-        #player-setup { margin: 20px 0; }
-        #player-names-container {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px; text-align: left; margin-top: 10px;
-        }
-        .player-input-group label { font-weight: bold; margin-bottom: 5px; display: block; }
-        .player-input-group input {
-            width: 95%; padding: 8px; border: 2px solid #ddd; border-radius: 5px;
-            transition: border-color 0.3s;
-        }
-        .player-input-group input:focus { border-color: var(--buzz-blue); outline: none; }
         
-        #buzzer-status {
-            font-weight: bold; padding: 10px; border-radius: 5px; margin: 15px 0; transition: all 0.3s;
-        }
+        .instructions { background: #f8f9fa; border-left: 4px solid var(--buzz-blue); padding: 1px 15px; text-align: left; margin: 15px 0; border-radius: 4px;}
+
+        #player-setup { margin: 20px 0; }
+        #player-names-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; text-align: left; margin-top: 10px; }
+        .player-input-group label { font-weight: bold; margin-bottom: 5px; display: block; }
+        .player-input-group input { width: 95%; padding: 8px; border: 2px solid #ddd; border-radius: 5px; }
+        
+        #buzzer-status { font-weight: bold; padding: 10px; border-radius: 5px; margin: 15px 0; transition: all 0.3s; }
         #buzzer-status.ok { background-color: #eaf6ec; color: #28a745; }
         #buzzer-status.ko { background-color: #fbecec; color: #e74c3c; }
 
-        #question-input {
-            width: 95%; height: 150px; margin-top: 10px; padding: 10px;
-            border: 2px dashed #bdc3c7; border-radius: 5px; font-family: monospace; font-size: 0.9em;
-        }
+        #question-input { width: 95%; height: 150px; margin-top: 10px; padding: 10px; border: 2px dashed #bdc3c7; border-radius: 5px; font-family: monospace; }
         
         .button {
-            background-color: var(--primary-color); color: var(--light-color); border: none; padding: 15px 30px;
-            font-size: 1.2em; font-weight: bold; border-radius: 50px; cursor: pointer;
-            margin-top: 20px; transition: background-color 0.3s, transform 0.2s;
+            background-color: var(--primary-color); color: var(--light-color); border: none; padding: 15px 30px; font-size: 1.2em;
+            font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 20px; transition: background-color 0.3s, transform 0.2s;
         }
         .button:hover { background-color: #34495e; transform: translateY(-2px); }
 
-        #answers-container {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;
-        }
+        #answers-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .answer {
-            background-color: var(--light-color); border: 4px solid; border-radius: 10px; padding: 20px;
-            font-size: 1.2em; transition: all 0.2s; display: flex; align-items: center;
+            background-color: var(--light-color); border: 4px solid; border-radius: 10px; padding: 20px; font-size: 1.2em; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; min-height: 60px;
         }
-        .answer::before { content: '●'; margin-right: 10px; font-size: 1.5em; }
-        #answer-0 { border-color: var(--buzz-blue); } #answer-0::before { color: var(--buzz-blue); }
-        #answer-1 { border-color: var(--buzz-orange); } #answer-1::before { color: var(--buzz-orange); }
-        #answer-2 { border-color: var(--buzz-green); } #answer-2::before { color: var(--buzz-green); }
-        #answer-3 { border-color: var(--buzz-yellow); } #answer-3::before { color: var(--buzz-yellow); }
+        #answer-0 { border-color: var(--buzz-blue); } #answer-1 { border-color: var(--buzz-orange); }
+        #answer-2 { border-color: var(--buzz-green); } #answer-3 { border-color: var(--buzz-yellow); }
 
         .answer.correct { background-color: var(--correct-color); color: var(--light-color); border-color: var(--correct-color); transform: scale(1.05); }
         .answer.incorrect { background-color: var(--incorrect-color); color: var(--light-color); border-color: var(--incorrect-color); opacity: 0.7; }
@@ -84,39 +67,33 @@
         #timer-container { width: 100%; height: 10px; background-color: #bdc3c7; border-radius: 5px; margin-top: 20px; overflow: hidden; }
         #timer-bar { width: 100%; height: 100%; background-color: #3498db; transition: width 0.1s linear; }
         
-        #scores-container { display: flex; justify-content: space-around; flex-wrap: wrap; margin-top: 20px; font-weight: bold; font-size: 1.2em; }
-        
-        #final-ranking { list-style-type: none; padding: 0; margin-top: 20px; }
-        #final-ranking li { background-color: #ecf0f1; margin: 10px 0; padding: 15px; border-radius: 5px; font-size: 1.3em; display: flex; justify-content: space-between; }
+        /* NOUVEAU : Styles pour l'état des joueurs */
+        #scores-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; font-weight: bold; font-size: 1.1em; text-align: left;}
+        .player-status .status-icon { margin-left: 8px; font-size: 1.2em; }
+        .player-status.waiting .status-icon { color: var(--waiting-color); }
+        .player-status.validated .status-icon { color: var(--validated-color); }
+
+        #final-ranking li { display: flex; justify-content: space-between; background-color: #ecf0f1; margin: 10px 0; padding: 15px; border-radius: 5px; font-size: 1.3em; }
         #final-ranking li:first-child { background-color: #f1c40f; font-weight: bold; }
     </style>
 </head>
 <body>
-
     <div class="container">
         <div id="setup-screen" class="active">
-            <h1>Quiz Cor-Tech v3 🚀</h1>
+            <h1>Quiz Cor-Tech v4 🚀</h1>
             <div id="buzzer-status">Détection des buzzers...</div>
             
+            <div class="instructions">
+                <p><strong>Nouvelle règle :</strong> Appuyez sur une couleur pour choisir votre réponse, puis sur le <strong>gros bouton rouge</strong> pour la valider !</p>
+            </div>
+
             <div id="player-setup">
                 <h3>Noms des Joueurs</h3>
                 <div id="player-names-container">
-                    <div class="player-input-group">
-                        <label for="player-1-name" style="color: var(--buzz-blue);">Joueur 1 (Bleu)</label>
-                        <input type="text" id="player-1-name" placeholder="Nom du joueur 1">
-                    </div>
-                    <div class="player-input-group">
-                        <label for="player-2-name" style="color: var(--buzz-orange);">Joueur 2 (Orange)</label>
-                        <input type="text" id="player-2-name" placeholder="Nom du joueur 2">
-                    </div>
-                    <div class="player-input-group">
-                        <label for="player-3-name" style="color: var(--buzz-green);">Joueur 3 (Vert)</label>
-                        <input type="text" id="player-3-name" placeholder="Nom du joueur 3">
-                    </div>
-                    <div class="player-input-group">
-                        <label for="player-4-name" style="color: var(--buzz-yellow);">Joueur 4 (Jaune)</label>
-                        <input type="text" id="player-4-name" placeholder="Nom du joueur 4">
-                    </div>
+                    <div class="player-input-group"><label for="player-1-name">Joueur 1</label><input type="text" id="player-1-name" placeholder="Nom du joueur 1"></div>
+                    <div class="player-input-group"><label for="player-2-name">Joueur 2</label><input type="text" id="player-2-name" placeholder="Nom du joueur 2"></div>
+                    <div class="player-input-group"><label for="player-3-name">Joueur 3</label><input type="text" id="player-3-name" placeholder="Nom du joueur 3"></div>
+                    <div class="player-input-group"><label for="player-4-name">Joueur 4</label><input type="text" id="player-4-name" placeholder="Nom du joueur 4"></div>
                 </div>
             </div>
 
@@ -136,7 +113,7 @@
         </div>
         <div id="end-screen">
              <h1>Partie Terminée !</h1><h2>Classement Final</h2>
-             <ul id="final-ranking"></ul>
+             <ul id="final-ranking" style="list-style-type: none; padding: 0;"></ul>
              <button class="button" onclick="restartGame()">Rejouer</button>
              <button class="button" onclick="location.reload()">Nouveau Quiz</button>
         </div>
@@ -146,68 +123,40 @@
         let questions = [];
         let currentQuestionIndex = 0;
         let scores = {};
-        let playerAnswers = {};
-        let timerInterval;
-        const TIME_PER_QUESTION = 15;
-        const POINTS_PER_ANSWER = 100;
-
-        // NOUVEAU : Variable pour stocker les noms
         let playerNames = [];
-
-        const answerColorMap = { 0: 'blue', 1: 'orange', 2: 'green', 3: 'yellow' };
+        // MODIFIÉ : playerAnswers stocke maintenant l'état de validation
+        let playerAnswers = {}; // { playerId: { answer: 2, validated: false } }
+        
+        let timerInterval;
+        let isRevealing = false; // Pour bloquer les inputs pendant la révélation
+        const TIME_PER_QUESTION = 20; // Un peu plus de temps pour la validation
+        const POINTS_PER_ANSWER = 100;
         
         const setupScreen = document.getElementById('setup-screen');
         const gameScreen = document.getElementById('game-screen');
         const endScreen = document.getElementById('end-screen');
         const buzzerStatusEl = document.getElementById('buzzer-status');
 
-        // Détection des buzzers (inchangé)
-        function updateBuzzerStatus() {
-            const gamepads = navigator.getGamepads().filter(gp => gp && gp.buttons.length >= 4);
-            const count = gamepads.length;
-            if (count > 0) {
-                buzzerStatusEl.textContent = `Statut : ${count} buzzer(s) détecté(s) ✅`;
-                buzzerStatusEl.className = 'ok';
-            } else {
-                buzzerStatusEl.textContent = `Statut : Aucun buzzer détecté ❌`;
-                buzzerStatusEl.className = 'ko';
-            }
-        }
-        window.addEventListener('gamepadconnected', updateBuzzerStatus);
+        // --- GESTION DES BUZZERS (inchangé) ---
+        function updateBuzzerStatus() { /* ... code inchangé ... */ }
+        window.addEventListener('gamepadconnected', () => setTimeout(updateBuzzerStatus, 100));
         window.addEventListener('gamepaddisconnected', updateBuzzerStatus);
         setInterval(updateBuzzerStatus, 3000);
+        updateBuzzerStatus(); // Appel initial
         
-        // Lecture des questions (inchangé)
-        function parseQuestions() {
-            const input = document.getElementById('question-input').value.trim();
-            if (!input) return;
-            const blocks = input.split('\n\n');
-            questions = blocks.map(block => {
-                const lines = block.split('\n').filter(line => line.trim() !== '');
-                if (lines.length < 5) return null;
-                const questionText = lines[0];
-                const answers = lines.slice(1, 5);
-                const correctAnswerIndex = answers.findIndex(answer => answer.endsWith('*'));
-                if (correctAnswerIndex === -1) return null;
-                const cleanedAnswers = answers.map(answer => answer.replace('*', '').trim());
-                return { question: questionText, answers: cleanedAnswers, correct: correctAnswerIndex };
-            }).filter(q => q !== null);
-        }
+        // --- GESTION DU JEU (MISES À JOUR) ---
+        function parseQuestions() { /* ... code inchangé ... */ }
 
         function startGame() {
             parseQuestions();
             if (questions.length === 0) {
-                alert("Format des questions incorrect ou champ vide. Veuillez vérifier.");
-                return;
+                alert("Format des questions incorrect ou champ vide. Veuillez vérifier."); return;
             }
-            
-            // NOUVEAU : Récupération des noms des joueurs
             playerNames = [];
             for (let i = 0; i < 4; i++) {
                 const nameInput = document.getElementById(`player-${i + 1}-name`);
                 playerNames[i] = nameInput.value.trim() || `Joueur ${i + 1}`;
             }
-
             scores = {}; currentQuestionIndex = 0;
             setupScreen.classList.remove('active'); gameScreen.classList.add('active'); endScreen.classList.remove('active');
             showQuestion();
@@ -215,6 +164,7 @@
         }
         
         function showQuestion() {
+            isRevealing = false;
             gameScreen.style.opacity = 0;
             setTimeout(() => {
                 resetQuestionState();
@@ -236,32 +186,55 @@
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 timeLeft -= 0.1;
-                timerBar.style.transition = 'width 0.1s linear';
                 timerBar.style.width = `${(timeLeft / TIME_PER_QUESTION) * 100}%`;
-                if (timeLeft <= 0) { clearInterval(timerInterval); revealAnswer(); }
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    if (!isRevealing) revealAnswer();
+                }
             }, 100);
         }
 
+        // MODIFIÉ : Gère la réponse et l'état "en attente"
         function handleAnswer(playerId, answerIndex) {
-            if (playerAnswers[playerId] !== undefined) return;
-            playerAnswers[playerId] = answerIndex;
-            const color = answerColorMap[answerIndex];
-            document.getElementById(`answer-${answerIndex}`).classList.add(`selected-${color}`);
-            if (!scores[playerId]) { scores[playerId] = 0; }
-            updateScoresDisplay();
+            if (isRevealing || (playerAnswers[playerId] && playerAnswers[playerId].validated)) return; // Bloque si déjà validé
+            playerAnswers[playerId] = { answer: answerIndex, validated: false };
+            updatePlayersStatusDisplay();
+        }
+
+        // NOUVEAU : Gère la validation avec le bouton rouge
+        function handleValidation(playerId) {
+            if (isRevealing || !playerAnswers[playerId] || playerAnswers[playerId].validated) return; // Ne fait rien si pas de réponse ou déjà validé
+            playerAnswers[playerId].validated = true;
+            updatePlayersStatusDisplay();
+            checkAllValidated();
+        }
+        
+        // NOUVEAU : Vérifie si on doit révéler la réponse
+        function checkAllValidated() {
+            const answeredPlayers = Object.keys(playerAnswers);
+            if (answeredPlayers.length === 0) return; // Personne n'a répondu
+            const allValidated = answeredPlayers.every(id => playerAnswers[id].validated);
+            if (allValidated) {
+                if (!isRevealing) revealAnswer();
+            }
         }
 
         function revealAnswer() {
+            isRevealing = true;
             clearInterval(timerInterval);
             const q = questions[currentQuestionIndex];
+            
             for (const playerId in playerAnswers) {
-                if (playerAnswers[playerId] === q.correct) { scores[playerId] = (scores[playerId] || 0) + POINTS_PER_ANSWER; }
+                if (playerAnswers[playerId].answer === q.correct) {
+                    scores[playerId] = (scores[playerId] || 0) + POINTS_PER_ANSWER;
+                }
             }
-            updateScoresDisplay();
+            
             for (let i = 0; i < 4; i++) {
                 const answerEl = document.getElementById(`answer-${i}`);
                 if (i === q.correct) { answerEl.classList.add('correct'); } else { answerEl.classList.add('incorrect'); }
             }
+            updatePlayersStatusDisplay(); // Met à jour une dernière fois avec les scores
             setTimeout(nextQuestion, 4000);
         }
 
@@ -272,15 +245,16 @@
         
         function resetQuestionState() {
             playerAnswers = {};
+            isRevealing = false;
             document.getElementById('timer-bar').style.width = '100%';
             for (let i = 0; i < 4; i++) {
                 document.getElementById(`answer-${i}`).className = 'answer';
             }
-            updateScoresDisplay();
+            updatePlayersStatusDisplay();
         }
         
-        // MODIFIÉ : Affichage des scores avec les noms
-        function updateScoresDisplay() {
+        // MODIFIÉ : Affiche le nom, le score ET L'ÉTAT (en attente, validé)
+        function updatePlayersStatusDisplay() {
             const scoresContainer = document.getElementById('scores-container');
             scoresContainer.innerHTML = '';
             const gamepads = navigator.getGamepads().filter(gp => gp);
@@ -289,15 +263,85 @@
 
             const sortedPlayerIds = Array.from(playerIds).sort((a,b) => a - b);
             sortedPlayerIds.forEach(id => {
-                 const scoreEl = document.createElement('div');
-                 scoreEl.className = 'player-score';
+                 const playerEl = document.createElement('div');
+                 playerEl.className = 'player-status';
                  const playerName = playerNames[id] || `Joueur ${parseInt(id) + 1}`;
-                 scoreEl.innerText = `${playerName}: ${scores[id] || 0}`;
-                 scoresContainer.appendChild(scoreEl);
+                 const playerScore = scores[id] || 0;
+                 let statusIcon = '';
+
+                 if (!isRevealing && playerAnswers[id]) {
+                     if(playerAnswers[id].validated) {
+                         playerEl.classList.add('validated');
+                         statusIcon = '<span class="status-icon">✔️</span>';
+                     } else {
+                         playerEl.classList.add('waiting');
+                         statusIcon = '<span class="status-icon">💬</span>';
+                     }
+                 }
+                 playerEl.innerHTML = `<span>${playerName}: ${playerScore}</span>${statusIcon}`;
+                 scoresContainer.appendChild(playerEl);
             });
         }
 
-        // MODIFIÉ : Affichage du classement avec les noms
+        function endGame() { /* ... code inchangé ... */ }
+        function restartGame() { /* ... code inchangé ... */ }
+
+        // --- BOUCLE DE JEU (MISES À JOUR) ---
+        const playerButtonPressed = {};
+        function gameLoop() {
+            const gamepads = navigator.getGamepads();
+            if (!gamepads) return;
+
+            for (let i = 0; i < gamepads.length; i++) {
+                const gp = gamepads[i];
+                if (gp) {
+                    if (!playerButtonPressed[i]) { playerButtonPressed[i] = Array(gp.buttons.length).fill(false); }
+                    
+                    gp.buttons.forEach((button, buttonIndex) => {
+                        if (button.pressed && !playerButtonPressed[i][buttonIndex]) {
+                            // Boutons de couleur (0 à 3)
+                            if (buttonIndex < 4) { handleAnswer(i, buttonIndex); }
+                            // Bouton rouge (4) pour valider
+                            if (buttonIndex === 4) { handleValidation(i); }
+                            
+                            playerButtonPressed[i][buttonIndex] = true;
+                        } else if (!button.pressed) {
+                            playerButtonPressed[i][buttonIndex] = false;
+                        }
+                    });
+                }
+            }
+            if(gameScreen.classList.contains('active')) { requestAnimationFrame(gameLoop); }
+        }
+
+        // --- Fonctions utilitaires inchangées ---
+        // (Copiez tout le reste du JS ici pour être sûr)
+        function updateBuzzerStatus() {
+            const gamepads = navigator.getGamepads().filter(gp => gp && gp.buttons.length >= 4);
+            const count = gamepads.length;
+            if (count > 0) {
+                buzzerStatusEl.textContent = `Statut : ${count} buzzer(s) détecté(s) ✅`;
+                buzzerStatusEl.className = 'ok';
+            } else {
+                buzzerStatusEl.textContent = `Statut : Aucun buzzer détecté ❌`;
+                buzzerStatusEl.className = 'ko';
+            }
+        }
+        function parseQuestions() {
+            const input = document.getElementById('question-input').value.trim();
+            if (!input) return;
+            const blocks = input.split('\n\n');
+            questions = blocks.map(block => {
+                const lines = block.split('\n').filter(line => line.trim() !== '');
+                if (lines.length < 5) return null;
+                const questionText = lines[0];
+                const answers = lines.slice(1, 5);
+                const correctAnswerIndex = answers.findIndex(answer => answer.endsWith('*'));
+                if (correctAnswerIndex === -1) return null;
+                const cleanedAnswers = answers.map(answer => answer.replace('*', '').trim());
+                return { question: questionText, answers: cleanedAnswers, correct: correctAnswerIndex };
+            }).filter(q => q !== null);
+        }
         function endGame() {
             gameScreen.classList.remove('active'); endScreen.classList.add('active');
             const finalRanking = document.getElementById('final-ranking');
@@ -315,36 +359,10 @@
                 finalRanking.appendChild(li);
             });
         }
-        
         function restartGame() {
             endScreen.classList.remove('active');
             startGame();
         }
-
-        // Boucle de jeu (inchangée)
-        const playerButtonPressed = {};
-        function gameLoop() {
-            const gamepads = navigator.getGamepads();
-            if (!gamepads) return;
-            for (let i = 0; i < gamepads.length; i++) {
-                const gp = gamepads[i];
-                if (gp) {
-                    if (!playerButtonPressed[i]) { playerButtonPressed[i] = [false, false, false, false, false]; }
-                    gp.buttons.forEach((button, buttonIndex) => {
-                        if (buttonIndex < 4) {
-                            if (button.pressed && !playerButtonPressed[i][buttonIndex]) {
-                                handleAnswer(i, buttonIndex); playerButtonPressed[i][buttonIndex] = true;
-                            } else if (!button.pressed) {
-                                playerButtonPressed[i][buttonIndex] = false;
-                            }
-                        }
-                    });
-                }
-            }
-            if(gameScreen.classList.contains('active')) { requestAnimationFrame(gameLoop); }
-        }
-        
-        updateBuzzerStatus();
     </script>
 </body>
 </html>
